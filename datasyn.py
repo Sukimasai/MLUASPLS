@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 
 def generate_mock_data(n_rows=590):
-    np.random.seed(42)
     airlines = ["Delta Air Lines", "Emirates", "Singapore Airlines", "Ryanair", "British Airways", "Lufthansa", "Qatar Airways", "United Airlines", "Zipair", "ANA"]
     aircrafts = ["Boeing 777", "Airbus A380", "Boeing 737", "Airbus A320", "Boeing 787", "Airbus A350", ""]
     travellers = ["Solo Leisure", "Couple Leisure", "Business", "Family Leisure"]
