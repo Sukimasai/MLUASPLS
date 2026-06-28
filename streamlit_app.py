@@ -2,9 +2,32 @@ import streamlit as st
 import pandas as pd
 from ml_service import load_model_bundle, build_dashboard_payload
 
+# 1. Define the expected columns based on your dataset
+EXPECTED_COLUMNS = [
+    'Airline Name', 'Overall_Rating', 'Review_Title', 'Review Date', 'Verified', 
+    'Review', 'Aircraft', 'Type Of Traveller', 'Seat Type', 'Route', 
+    'Date Flown', 'Seat Comfort', 'Cabin Staff Service', 'Food & Beverages', 
+    'Ground Service', 'Inflight Entertainment', 'Wifi & Connectivity', 
+    'Value For Money', 'Recommended'
+]
+
 st.set_page_config(page_title="EagleInsight Dashboard", layout="wide")
-st.title("🦅 EagleInsight: Airline Review Analyzer")
+st.title("EagleInsight: Airline Review Analyzer")
 st.markdown("Upload a CSV of airline reviews to generate AI-driven insights and recommendations.")
+
+# 2. Add Download Template functionality
+st.subheader("Data Upload")
+st.write("If you don't have your data file ready, you can download the template below:")
+
+template_df = pd.DataFrame(columns=EXPECTED_COLUMNS)
+csv_template = template_df.to_csv(index=False)
+
+st.download_button(
+    label="📥 Download Data Template",
+    data=csv_template,
+    file_name="airline_reviews_template.csv",
+    mime="text/csv"
+)
 
 @st.cache_resource
 def get_model():
@@ -18,8 +41,12 @@ if uploaded_file is not None:
     try:
         dataframe = pd.read_csv(uploaded_file)
         
+        missing_cols = [col for col in EXPECTED_COLUMNS if col not in dataframe.columns]
+        
         if dataframe.empty:
             st.error("The uploaded CSV is empty.")
+        elif missing_cols:
+            st.error(f"Invalid file format. Missing columns: {', '.join(missing_cols)}")
         else:
             with st.spinner("Analyzing dataset..."):
                 payload = build_dashboard_payload(dataframe, bundle)
@@ -59,4 +86,4 @@ if uploaded_file is not None:
                     st.json(matrix["not_important"])
 
     except Exception as e:
-        st.error(f"Error processing file: {e}")
+        st.error(f"An unexpected error occurred: {e}")
