@@ -29,7 +29,7 @@ if 'mock_data' in st.session_state:
     )
 
 st.subheader("Data Upload")
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([1, 4])
 with col1:
     template_df = pd.DataFrame(columns=EXPECTED_COLUMNS)
     st.download_button("📥 Download Template", template_df.to_csv(index=False), "template.csv")
@@ -44,6 +44,7 @@ elif 'mock_data' in st.session_state:
         df = st.session_state['mock_data']
 
 if df is not None:
+    # 1. Validation Logic
     missing_cols = [col for col in EXPECTED_COLUMNS if col not in df.columns]
     
     if df.empty:
@@ -53,31 +54,47 @@ if df is not None:
     else:
         st.success("File format verified! Processing...")
         
-        bundle = load_model_bundle()
-        with st.spinner("Analyzing dataset..."):
-            payload = build_dashboard_payload(df, bundle)
-            
-            st.header("Executive Summary")
-            summary = payload["summary"]
-            c1, c2, c3, c4 = st.columns(4)
-            c1.metric("Total Reviews", summary["total_reviews"])
-            c2.metric("Recommended", summary["recommended_reviews"])
-            c3.metric("Not Recommended", summary["not_recommended_reviews"])
-            c4.metric("Avg Confidence", f"{summary['average_confidence']}%")
+        try:
+            bundle = load_model_bundle()
+            with st.spinner("Analyzing dataset..."):
+                payload = build_dashboard_payload(df, bundle)
+                
+                st.header("Executive Summary")
+                summary = payload["summary"]
+                col1, col2, col3, col4 = st.columns(4)
+                col1.metric("Total Reviews", summary["total_reviews"])
+                col2.metric("Recommended", summary["recommended_reviews"])
+                col3.metric("Not Recommended", summary["not_recommended_reviews"])
+                col4.metric("Average Confidence", f"{summary['average_confidence']}%")
 
-            st.divider()
-            
-            st.header("Extracted Insights")
-            if payload["insights"]:
-                st.dataframe(pd.DataFrame(payload["insights"]), use_container_width=True)
-            
-            st.divider()
-            
-            st.header("Priority Matrix")
-            m1, m2 = st.columns(2)
-            with m1:
-                st.subheader("Priority Targets")
-                st.json(payload["matrix"]["priority_target"])
-            with m2:
-                st.subheader("Major Projects")
-                st.json(payload["matrix"]["major_projects"])
+                st.divider()
+
+                st.header("Extracted Insights")
+                insights = payload["insights"]
+                if insights:
+                    st.dataframe(pd.DataFrame(insights), use_container_width=True)
+                else:
+                    st.info("No actionable insights found based on current rules.")
+
+                st.divider()
+
+                st.header("Priority Matrix")
+                matrix = payload["matrix"]
+                
+                m_col1, m_col2 = st.columns(2)
+                with m_col1:
+                    st.subheader("Priority Targets (High Impact, Easy)")
+                    st.json(matrix["priority_target"])
+                    
+                    st.subheader("Major Projects (High Impact, Hard)")
+                    st.json(matrix["major_projects"])
+                
+                with m_col2:
+                    st.subheader("Fill-ins (Low Impact, Easy)")
+                    st.json(matrix["fill_ins"])
+                    
+                    st.subheader("Not Important (Low Impact, Hard)")
+                    st.json(matrix["not_important"])
+
+        except Exception as e:
+            st.error(f"An error occurred while processing the file: {e}")
