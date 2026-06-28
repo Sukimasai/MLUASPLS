@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from ml_service import load_model_bundle, build_dashboard_payload
 
-# 1. Define the expected columns based on your dataset
 EXPECTED_COLUMNS = [
     'Airline Name', 'Overall_Rating', 'Review_Title', 'Review Date', 'Verified', 
     'Review', 'Aircraft', 'Type Of Traveller', 'Seat Type', 'Route', 
@@ -15,7 +14,6 @@ st.set_page_config(page_title="EagleInsight Dashboard", layout="wide")
 st.title("EagleInsight: Airline Review Analyzer")
 st.markdown("Upload a CSV of airline reviews to generate AI-driven insights and recommendations.")
 
-# 2. Add Download Template functionality
 st.subheader("Data Upload")
 st.write("If you don't have your data file ready, you can download the template below:")
 
