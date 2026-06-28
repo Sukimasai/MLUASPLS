@@ -174,11 +174,11 @@ def build_summary(predicted_frame: pd.DataFrame) -> dict[str, Any]:
 
 def classify_priority(frequency: int, total_reviews: int) -> tuple[str, str, str]:
     percentage = (frequency / total_reviews) * 100
-    if percentage > 15:
+    if percentage > 20:
         return "Major Projects", "High", "Hard"
-    if percentage > 5:
+    if percentage > 10:
         return "Priority Target", "High", "Easy"
-    if percentage < 1:
+    if percentage < 5:
         return "Not Important", "Low", "Hard"
     return "Fill-ins", "Low", "Easy"
 
