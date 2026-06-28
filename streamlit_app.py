@@ -30,37 +30,33 @@ if uploaded_file is not None:
                 col1.metric("Total Reviews", summary["total_reviews"])
                 col2.metric("Recommended", summary["recommended_reviews"])
                 col3.metric("Not Recommended", summary["not_recommended_reviews"])
-                col4.metric("Average Confidence", f"{summary['average_confidence']}%")
+                col4.metric("Avg Confidence", f"{summary['average_confidence']}%")
 
                 st.divider()
 
                 st.header("Extracted Insights")
                 insights = payload["insights"]
                 if insights:
-                    insights_df = pd.DataFrame(insights)
-                    st.dataframe(insights_df, use_container_width=True)
+                    st.dataframe(pd.DataFrame(insights), use_container_width=True)
                 else:
-                    st.info("No actionable insights found based on current rules.")
+                    st.info("No actionable insights found.")
 
                 st.divider()
-
+                
                 st.header("Priority Matrix")
                 matrix = payload["matrix"]
                 
-                m_col1, m_col2 = st.columns(2)
-                with m_col1:
-                    st.subheader("Priority Targets (High Impact, Easy)")
+                m1, m2 = st.columns(2)
+                with m1:
+                    st.subheader("Priority Targets")
                     st.json(matrix["priority_target"])
-                    
-                    st.subheader("Major Projects (High Impact, Hard)")
+                    st.subheader("Major Projects")
                     st.json(matrix["major_projects"])
-                
-                with m_col2:
-                    st.subheader("Fill-ins (Low Impact, Easy)")
+                with m2:
+                    st.subheader("Fill-ins")
                     st.json(matrix["fill_ins"])
-                    
-                    st.subheader("Not Important (Low Impact, Hard)")
+                    st.subheader("Not Important")
                     st.json(matrix["not_important"])
 
     except Exception as e:
-        st.error(f"An error occurred while processing the file: {e}")
+        st.error(f"Error processing file: {e}")
